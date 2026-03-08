@@ -365,7 +365,7 @@ st.write(
 )
 
 # Editor Kandidat
-st.markdown("Matriks Kandidat")
+st.markdown("#### Matriks Kandidat")
 editable_kandidat = kandidat_df.copy()
 editable_kandidat["Hapus"] = False
 
@@ -396,8 +396,7 @@ if st.button("Simpan Matriks Kandidat", type="primary"):
 st.divider()
 
 # Editor BADKO
-st.markdown("Matriks BADKO")
-st.markdown("Tabel Badko")
+st.markdown("#### Tabel Badko")
 editable_badko_master = badko_master_df.copy()
 
 edited_badko_master = st.data_editor(
@@ -437,7 +436,7 @@ edited_badko = st.data_editor(
     key="editor_badko_detail",
 )
 
-if st.button("Simpan Tabel Cabang BADKO", type="primary"):
+if st.button("Simpan Tabel Cabang", type="primary"):
     to_save = edited_badko[edited_badko["Hapus"] != True].drop(columns=["Hapus"])
     save_csv(to_save, BADKO_FILE)
     st.session_state["save_notice"] = "Tabel Cabang BADKO berhasil disimpan. Overview dan grafik diperbarui."
