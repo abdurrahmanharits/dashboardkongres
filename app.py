@@ -325,19 +325,36 @@ with left:
             plt.close(fig)
 
 with right:
-    st.subheader("Peta Stance Politik BADKO")
-    if badko_df.empty:
-        st.info("Data BADKO masih kosong.")
+    st.subheader("Top 5 Kandidat")
+    if kandidat_df.empty:
+        st.info("Data kandidat masih kosong.")
     else:
-        stance_count = (
-            badko_df["Stance Politik"]
-            .fillna("Tidak Diketahui")
-            .replace("", "Tidak Diketahui")
-            .value_counts()
-            .rename_axis("Stance Politik")
-            .reset_index(name="Jumlah")
+        kandidat_rank = kandidat_df.copy()
+        kandidat_rank["Nama Kandidat"] = kandidat_rank["Nama Kandidat"].fillna("").astype(str).str.strip()
+        kandidat_rank["Mentor"] = kandidat_rank["Mentor"].fillna("").astype(str).str.strip()
+        kandidat_rank["Asal Cabang"] = kandidat_rank["Asal Cabang"].fillna("").astype(str).str.strip()
+        kandidat_rank = kandidat_rank[kandidat_rank["Nama Kandidat"] != ""]
+
+        top5 = (
+            kandidat_rank.groupby("Nama Kandidat", as_index=False)
+            .agg(
+                {
+                    "Jumlah Cabang Pendukung": "sum",
+                    "Mentor": lambda s: ", ".join(sorted(set(v for v in s if v))),
+                    "Asal Cabang": lambda s: ", ".join(sorted(set(v for v in s if v))),
+                }
+            )
+            .rename(
+                columns={
+                    "Jumlah Cabang Pendukung": "Total Cabang Pendukung",
+                    "Asal Cabang": "List Cabang Pendukung",
+                }
+            )
+            .sort_values("Total Cabang Pendukung", ascending=False)
+            .head(5)
+            .reset_index(drop=True)
         )
-        st.bar_chart(stance_count, x="Stance Politik", y="Jumlah")
+        st.dataframe(top5, use_container_width=True, hide_index=True)
 
 st.divider()
 
@@ -379,8 +396,8 @@ if st.button("Simpan Matriks Kandidat", type="primary"):
 st.divider()
 
 # Editor BADKO
-st.markdown("### 2) Matriks BADKO")
-st.markdown("#### Tabel Badko")
+st.markdown("Matriks BADKO")
+st.markdown("Tabel Badko")
 editable_badko_master = badko_master_df.copy()
 
 edited_badko_master = st.data_editor(
